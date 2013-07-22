@@ -13,7 +13,7 @@ namespace OperaTools
 		public static int MAX_X_COUNT = 5; // maximum number of speed dial previews in a row, default value is 5
 		public static int DIAL_WIDTH = 270; // speed dial preview width in pixels, default value is 270
 		public static int DIAL_HEIGHT = 130; // speed dial preview height in pixels, default value is 130
-		public static bool UsePreinstalledSpeedDials = true; // set false to replace built-in SD images, default value is true
+		public static bool DisableBuiltInImages = false; // set true to replace built-in SD images with rendered ones, default value is false
 		
 		private static int Main(string[] args)
 		{
@@ -30,7 +30,7 @@ namespace OperaTools
 					else if (args[n] == "-height" && n < args.Length - 1)
 						DIAL_HEIGHT = Convert.ToInt32(args[n + 1]);
 					else if (args[n] == "-disablebuiltinimages")
-						UsePreinstalledSpeedDials = false;
+						DisableBuiltInImages = true;
 				}
 					
 				PakFile pakFile = new PakFile();
@@ -79,7 +79,7 @@ namespace OperaTools
 				WriteHighlightedLine("Opera.pak file location: ", fileName, "");
 				WriteHighlightedLine("Speed Dial columns: ", MAX_X_COUNT.ToString(), "");
 				WriteHighlightedLine("Speed Dial preview size: ", String.Format("{0}×{1}", DIAL_WIDTH, DIAL_HEIGHT), " pixels");
-				WriteHighlightedLine("Use built-in preview images for sites like Facebook: ", UsePreinstalledSpeedDials ? "yes" : "no", "");
+				WriteHighlightedLine("Use built-in preview images for sites (like Facebook): ", DisableBuiltInImages ? "no" : "yes", "");
 				Console.WriteLine();
 				WriteHighlightedLine("Press ", "Y", " to continue or any other key to exit.");
 				Console.WriteLine();
@@ -157,7 +157,7 @@ namespace OperaTools
 					if (line == TEXT_PREINSTALLED_CHECK_URL_FUNCTION && n < lines.Length - 1 && 
 						lines[n + 1].StartsWith(TEXT_PREINSTALLED_CHECK_URL_NEXTLINE))
 					{
-						lines[n + 1] = TEXT_PREINSTALLED_CHECK_URL_NEXTLINE + (UsePreinstalledSpeedDials ? "" : "return null;");
+						lines[n + 1] = TEXT_PREINSTALLED_CHECK_URL_NEXTLINE + (DisableBuiltInImages ? "return null;" : "");
 						break;
 					}
 				}
