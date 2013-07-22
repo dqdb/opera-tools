@@ -10,10 +10,10 @@ namespace OperaTools
 {
 	public class Program
 	{
-		public const int MAX_X_COUNT = 5; // maximum number of speed dial previews in a row, default value is 5
-		public const int DIAL_WIDTH = 270; // speed dial preview width in pixels, default value is 270
-		public const int DIAL_HEIGHT = 130; // speed dial preview height in pixels, default value is 130
-		public const bool UsePreinstalledSpeedDials = true; // set false to replace built-in SD images, default value is true
+		public static int MAX_X_COUNT = 5; // maximum number of speed dial previews in a row, default value is 5
+		public static int DIAL_WIDTH = 270; // speed dial preview width in pixels, default value is 270
+		public static int DIAL_HEIGHT = 130; // speed dial preview height in pixels, default value is 130
+		public static bool UsePreinstalledSpeedDials = true; // set false to replace built-in SD images, default value is true
 		
 		private static int Main(string[] args)
 		{
@@ -21,6 +21,18 @@ namespace OperaTools
 			
 			try
 			{
+				for (int n = 0; n < args.Length; n++)
+				{
+					if (args[n] == "-columns" && n < args.Length - 1)
+						MAX_X_COUNT = Convert.ToInt32(args[n + 1]);
+					else if (args[n] == "-width" && n < args.Length - 1)
+						DIAL_WIDTH = Convert.ToInt32(args[n + 1]);
+					else if (args[n] == "-height" && n < args.Length - 1)
+						DIAL_HEIGHT = Convert.ToInt32(args[n + 1]);
+					else if (args[n] == "-disablebuiltinimages")
+						UsePreinstalledSpeedDials = false;
+				}
+					
 				PakFile pakFile = new PakFile();
 				
 				string[] folders = Directory.GetDirectories(".");
@@ -61,6 +73,20 @@ namespace OperaTools
 				if (fileName == null)
 					throw new FileNotFoundException("Unable to find \"opera.pak\" file to patch.");
 
+				Console.WriteLine("SpeedDialPatch.exe [-columns number] [-width humber] [-height number] [-disablebuiltinimages]");
+				Console.WriteLine();
+
+				WriteHighlightedLine("Opera.pak file location: ", fileName, "");
+				WriteHighlightedLine("Speed Dial columns: ", MAX_X_COUNT.ToString(), "");
+				WriteHighlightedLine("Speed Dial preview size: ", String.Format("{0}×{1}", DIAL_WIDTH, DIAL_HEIGHT), " pixels");
+				WriteHighlightedLine("Use built-in preview images for sites like Facebook: ", UsePreinstalledSpeedDials ? "yes" : "no", "");
+				Console.WriteLine();
+				WriteHighlightedLine("Press ", "Y", " to continue or any other key to exit.");
+				Console.WriteLine();
+				ConsoleKeyInfo key = Console.ReadKey(false);
+				if (key == null || key.Key != ConsoleKey.Y)
+					return 1;
+
 				Console.WriteLine("Reading {0} ...", fileName);
 				pakFile.Load(fileName);
 				
@@ -75,6 +101,8 @@ namespace OperaTools
 				const string TEXT_CSS_HEIGHT = "  height: ";
 				const string TEXT_CSS_TOP = "  top: ";
 				const string TEXT_CSS_LEFT = "  left: ";
+				const string TEXT_PREINSTALLED_CHECK_URL_FUNCTION = "  this.checkURL = function(URL)";
+				const string TEXT_PREINSTALLED_CHECK_URL_NEXTLINE = "  {";
 				
 				string[] lines = pakFile.GetItem(FILE_SPEEDDIAL_LAYOUT_JS);
 				for (int n = 0; n < lines.Length; n++)
@@ -122,8 +150,18 @@ namespace OperaTools
 					pakFile.SetItem(id, lines);
 				}
 				
-				if (!UsePreinstalledSpeedDials)
-					pakFile.SetItem(FILE_PREINSTALLED_SPEEDDIALS_JS, "\"use strict\";\r\n\r\nvar PreinstalledSpeeddials = function() {};\r\n\r\n(function()\r\n{\r\n  this.checkURL = function(URL)\r\n  {\r\n    return null;\r\n  };\r\n\r\n}).apply(PreinstalledSpeeddials);\r\n");
+				lines = pakFile.GetItem(FILE_PREINSTALLED_SPEEDDIALS_JS);
+				for (int n = 0; n < lines.Length; n++)
+				{
+					string line = lines[n];
+					if (line == TEXT_PREINSTALLED_CHECK_URL_FUNCTION && n < lines.Length - 1 && 
+						lines[n + 1].StartsWith(TEXT_PREINSTALLED_CHECK_URL_NEXTLINE))
+					{
+						lines[n + 1] = TEXT_PREINSTALLED_CHECK_URL_NEXTLINE + (UsePreinstalledSpeedDials ? "" : "return null;");
+						break;
+					}
+				}
+				pakFile.SetItem(FILE_PREINSTALLED_SPEEDDIALS_JS, lines);
 				
 				Console.WriteLine("Writing {0} ...", fileName);
 				pakFile.Save(fileName + ".temp");
@@ -149,6 +187,15 @@ namespace OperaTools
 				else if (text.StartsWith(name))
 					lines[n] = name + value.ToString() + "px;";
 			}
+		}
+		
+		private static void WriteHighlightedLine(string before, string highlighted, string after)
+		{
+			Console.Write(before);
+			Console.ForegroundColor = ConsoleColor.White;
+			Console.Write(highlighted);
+			Console.ResetColor();
+			Console.WriteLine(after);
 		}
 	}
 	
