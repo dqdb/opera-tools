@@ -11,8 +11,8 @@ namespace OperaTools
 	public class Program
 	{
 		public static int MAX_X_COUNT = 5; // maximum number of speed dial previews in a row, default value is 5
-		public static int DIAL_WIDTH = 270; // speed dial preview width in pixels, default value is 270
-		public static int DIAL_HEIGHT = 130; // speed dial preview height in pixels, default value is 130
+		public static int DIAL_WIDTH = 230; // speed dial preview width in pixels, default value is 230
+		public static int DIAL_HEIGHT = 170; // speed dial preview height in pixels, default value is 170
 		public static bool DisableBuiltInImages = false; // set true to replace built-in SD images with rendered ones, default value is false
 		
 		private static int Main(string[] args)
@@ -125,26 +125,26 @@ namespace OperaTools
 						string line = lines[n];
 						if (line == ".speeddial")
 						{
-							Program.PatchCssRule(lines, n, TEXT_CSS_WIDTH, 100);
-							Program.PatchCssRule(lines, n, TEXT_CSS_HEIGHT, 60);
+							Program.PatchCssRule(lines, n, TEXT_CSS_WIDTH, DIAL_WIDTH);
+							Program.PatchCssRule(lines, n, TEXT_CSS_HEIGHT, DIAL_HEIGHT);
 						}
 						else if (line == ".dial-thumbnail")
 						{
-							Program.PatchCssRule(lines, n, TEXT_CSS_WIDTH, 32);
-							Program.PatchCssRule(lines, n, TEXT_CSS_HEIGHT, 16);
+							Program.PatchCssRule(lines, n, TEXT_CSS_WIDTH, (DIAL_WIDTH - 36) / 2);
+							Program.PatchCssRule(lines, n, TEXT_CSS_HEIGHT, (DIAL_HEIGHT - 28) / 2);
 						}
 						else if (line == ".dial-thumbnail:nth-child(2)")
 						{
-							Program.PatchCssRule(lines, n, TEXT_CSS_LEFT, 50);
+							Program.PatchCssRule(lines, n, TEXT_CSS_LEFT, DIAL_WIDTH / 2);
 						}
 						else if (line == ".dial-thumbnail:nth-child(3)")
 						{
-							Program.PatchCssRule(lines, n, TEXT_CSS_TOP, 29);
+							Program.PatchCssRule(lines, n, TEXT_CSS_TOP, DIAL_HEIGHT / 2 - 1);
 						}
 						else if (line == ".dial-thumbnail:nth-child(4)")
 						{
-							Program.PatchCssRule(lines, n, TEXT_CSS_LEFT, 50);
-							Program.PatchCssRule(lines, n, TEXT_CSS_TOP, 29);
+							Program.PatchCssRule(lines, n, TEXT_CSS_LEFT, DIAL_WIDTH / 2);
+							Program.PatchCssRule(lines, n, TEXT_CSS_TOP, DIAL_HEIGHT / 2 - 1);
 						}
 					}
 					pakFile.SetItem(id, lines);
