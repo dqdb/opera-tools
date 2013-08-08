@@ -19,6 +19,9 @@ namespace OperaTools
 			
 			try
 			{
+				Console.WriteLine("Opera Speed Dial Patch 1.1.0");
+				Console.WriteLine("Copyright (c) 2013 dqdb");
+				Console.WriteLine();
 				Settings settings = new Settings();
 				settings.LoadFromConfigFile();
 				settings.LoadFromCommandLine(args);
@@ -43,10 +46,12 @@ namespace OperaTools
 				Console.WriteLine(" ...");
 				pakFile.Load(fileName);
 				
-				const int FILE_SPEEDDIAL_LAYOUT_JS = 38276;
-				const int FILE_MAIN_CSS = 38274;
-				const int FILE_STARTPAGE_HTML = 39011;
-				const int FILE_PREINSTALLED_SPEEDDIALS_JS = 38282;
+				int version = GetOperaPakVersion(fileName);
+				
+				int FILE_SPEEDDIAL_LAYOUT_JS = version >= 17 ? 43020 : 38276;
+				int FILE_MAIN_CSS = version >= 17 ? 43018 : 38274;
+				int FILE_STARTPAGE_HTML = version >= 17 ? 43515 : 39011;
+				int FILE_PREINSTALLED_SPEEDDIALS_JS = version >= 17 ? 43026 : 38282;
 				const string TEXT_MAX_X_COUNT = "  var MAX_X_COUNT = ";
 				const string TEXT_DIAL_WIDTH = "SpeeddialObject.DIAL_WIDTH = ";
 				const string TEXT_DIAL_HEIGHT = "SpeeddialObject.DIAL_HEIGHT = ";
@@ -135,6 +140,16 @@ namespace OperaTools
 				result = 1;
 			}
 			return result;
+		}
+		
+		private static int GetOperaPakVersion(string fileName)
+		{
+			fileName = Path.GetFileName(Path.GetDirectoryName(fileName));
+			int n = fileName.IndexOf('.');
+			if (n == -1)
+				return 0;
+			
+			return Convert.ToInt32(fileName.Substring(0, n));
 		}
 		
 		private static string FindLatestOperaPak(string baseFolder)

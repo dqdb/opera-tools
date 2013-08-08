@@ -12,3 +12,7 @@ Because this tool modifies the **opera.pak** file, you must run it after each Op
 #Requirements
 1. *XP only:* install Microsoft .NET Framework 2.0 if it is not installed already 
 
+#History
+
+**Changes in version 1.1.0**
+* Updated for Opera 17
