@@ -19,7 +19,7 @@ namespace OperaTools
 			
 			try
 			{
-				Console.WriteLine("Opera Speed Dial Patch 1.1.0");
+				Console.WriteLine("Opera Speed Dial Patch 1.2.0");
 				Console.WriteLine("Copyright (c) 2013 dqdb");
 				Console.WriteLine();
 				Settings settings = new Settings();
@@ -38,6 +38,52 @@ namespace OperaTools
 					return 1;
 				}
 
+				Version version;
+				int FILE_SPEEDDIAL_LAYOUT_JS;
+				int FILE_MAIN_CSS;
+				int FILE_STARTPAGE_HTML;
+				int FILE_PREINSTALLED_SPEEDDIALS_JS;
+				
+				try
+				{
+					version = GetOperaPakVersion(fileName);
+				}
+				catch (Exception)
+				{
+					Console.ForegroundColor = ConsoleColor.Red;
+					Console.WriteLine("Error: unable to get version number from \"{0}\".", fileName);
+					Console.ResetColor();
+					return 1;
+				}
+				
+				Console.ForegroundColor = ConsoleColor.Yellow;
+				if (version.Major >= 17)
+				{
+					FILE_SPEEDDIAL_LAYOUT_JS = 43020;
+					FILE_MAIN_CSS = 43018;
+					FILE_STARTPAGE_HTML = 43515;
+					FILE_PREINSTALLED_SPEEDDIALS_JS = 43026;
+					Console.WriteLine("Using resource layout for Opera 17 builds.");
+				}
+				else if (version.Major == 16 && version.Revision >= 41)
+				{
+					FILE_SPEEDDIAL_LAYOUT_JS = 38278;
+					FILE_MAIN_CSS = 38276;
+					FILE_STARTPAGE_HTML = 39011;
+					FILE_PREINSTALLED_SPEEDDIALS_JS = 38284;
+					Console.WriteLine("Using resource layout for newer Opera 16 builds.");
+				}
+				else
+				{
+					FILE_SPEEDDIAL_LAYOUT_JS = 38276;
+					FILE_MAIN_CSS = 38274;
+					FILE_STARTPAGE_HTML = 39011;
+					FILE_PREINSTALLED_SPEEDDIALS_JS = 38282;
+					Console.WriteLine("Using resource layout for Opera 15 and older Opera 16 builds.");
+				}
+				Console.ResetColor();
+				Console.WriteLine();
+				
 				PakFile pakFile = new PakFile();
 				Console.Write("Reading ");
 				Console.ForegroundColor = ConsoleColor.White;
@@ -46,12 +92,6 @@ namespace OperaTools
 				Console.WriteLine(" ...");
 				pakFile.Load(fileName);
 				
-				int version = GetOperaPakVersion(fileName);
-				
-				int FILE_SPEEDDIAL_LAYOUT_JS = version >= 17 ? 43020 : 38276;
-				int FILE_MAIN_CSS = version >= 17 ? 43018 : 38274;
-				int FILE_STARTPAGE_HTML = version >= 17 ? 43515 : 39011;
-				int FILE_PREINSTALLED_SPEEDDIALS_JS = version >= 17 ? 43026 : 38282;
 				const string TEXT_MAX_X_COUNT = "  var MAX_X_COUNT = ";
 				const string TEXT_DIAL_WIDTH = "SpeeddialObject.DIAL_WIDTH = ";
 				const string TEXT_DIAL_HEIGHT = "SpeeddialObject.DIAL_HEIGHT = ";
@@ -142,14 +182,10 @@ namespace OperaTools
 			return result;
 		}
 		
-		private static int GetOperaPakVersion(string fileName)
+		private static Version GetOperaPakVersion(string fileName)
 		{
-			fileName = Path.GetFileName(Path.GetDirectoryName(fileName));
-			int n = fileName.IndexOf('.');
-			if (n == -1)
-				return 0;
-			
-			return Convert.ToInt32(fileName.Substring(0, n));
+			string[] components = Path.GetFileName(Path.GetDirectoryName(fileName)).Split('.');
+			return new Version(Convert.ToInt32(components[0]), Convert.ToInt32(components[1]), Convert.ToInt32(components[2]), Convert.ToInt32(components[3]));
 		}
 		
 		private static string FindLatestOperaPak(string baseFolder)
