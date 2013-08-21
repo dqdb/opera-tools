@@ -1,4 +1,4 @@
-Patch Opera 15 or 16 to support more speed dial columns and smaller/larger preview images. 
+Patch Opera 15 or 16 to support more speed dial columns and smaller/larger preview images, and injects custom CSS styles into internal pages.
 
 #Usage
 1. exit Opera
@@ -13,6 +13,11 @@ Because this tool modifies the **opera.pak** file, you must run it after each Op
 
 #Requirements
 1. *XP only:* install Microsoft .NET Framework 2.0 if it is not installed already 
+
+###Changes in 1.3.0 (2013-08-22)
+* Updated for *Opera 15.0.1147.153*, *Opera 16.0.1196.55* and *Opera 17.0.1232.0*
+* Stricter Opera version checking
+* Added CSS injection with some sample scripts
 
 ###Changes in version 1.2.0 (2013-08-13)
 * Updated for Opera 16.0.1196.41 (third resource layout)

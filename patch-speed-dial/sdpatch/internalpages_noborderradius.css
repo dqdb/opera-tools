@@ -1,0 +1,10 @@
+/* patchtitle:Internal Pages # Remove all border radius */
+/* patchfile:ToolsCss */
+#search-field, #sidebar { border-radius: 0px !important; }
+/* patchfile:FilterCss */
+#search-field { border-radius: 0px !important; }
+.filter { border-radius: 0px !important; }
+/* patchfile:StartPageHtml */
+.filter-container { margin-top: 8px !important; box-shadow: none !important; }
+.speeddial { border-radius: 0px !important; }
+.section-nav { border-radius: 0px !important; }

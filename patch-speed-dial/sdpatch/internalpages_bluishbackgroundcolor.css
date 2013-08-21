@@ -1,0 +1,12 @@
+/* patchtitle:Internal Pages # Set bluish flat theme */
+/* patchfile:ToolsCss */
+body { background: #bddce8 !important; }
+.wallpaper-gradient { display: none !important; } 
+/* patchfile:StartPageHtml */
+body { background: #bddce8 !important; }
+.wallpaper-gradient { display: none !important; } 
+.filter-container { margin-top: 8px !important; box-shadow: none !important; }
+.section-nav { margin: 4px 8px 0 !important; }
+.section-nav.selected { box-shadow: none !important; background-color: rgba(255, 255, 255, 0.7) !important; }
+.section-nav:hover, .section-nav:focus { background-color: rgba(255, 255, 255, 0.9) !important; }
+.speeddial-add { background-image: url("opera://theme/IDR_START_PAGE_PLUS") !important; }

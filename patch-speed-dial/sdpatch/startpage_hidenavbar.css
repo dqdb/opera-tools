@@ -1,0 +1,4 @@
+/* patchtitle:Start Page # Hide Speed Dial, Stash, Discover buttons and Google search bar */
+/* patchfile:StartPageHtml */
+nav { display: none !important; } 
+#view-container { top: 0px !important; }
