@@ -1,0 +1,3 @@
+/* patchtitle:Start Page # Hide Add Speed Dial button */
+/* patchfile:StartPageHtml */
+.speeddial-add { display: none !important }

@@ -19,7 +19,7 @@ namespace OperaTools
 			
 			try
 			{
-				ColoredConsole.WriteLine("~WOpera Speed Dial Patch 1.3.0~N");
+				ColoredConsole.WriteLine("~WOpera Speed Dial Patch 1.4.0~N");
 				ColoredConsole.WriteLine("~WCopyright (c) 2013 dqdb~N");
 				ColoredConsole.WriteLine();
 				Settings settings = new Settings();
@@ -48,43 +48,48 @@ namespace OperaTools
 					return 1;
 				}
 				
-				ResourceLayout[] resourceLayouts = new ResourceLayout[]
+				OperaVersion[] operaVersions = new OperaVersion[]
 				{
-					//                 StartVersion        EndVersion           SpeeddialLayoutJs
-					//                 |                   |                    |      StartPageHtml
-					//                 |                   |                    |      |      PreinstalledSpeeddialsJs
-					//                 |                   |                    |      |      |      ToolsCss
-					//                 |                   |                    |      |      |      |      FilterCss
-					//                 |                   |                    |      |      |      |      |
-					new ResourceLayout(17, 0, 1232,   0,   17, 0, 1232,   0,    43021, 43515, 43027, 41010, 41008),
-					new ResourceLayout(17, 0, 1224,   1,   17, 0, 1224,   1,    43020, 43515, 43026, 41010, 41008),
-					
-					new ResourceLayout(16, 0, 1196,  45,   16, 0, 1196,  55,    38278, 39011, 38284, 41010, 41008),
-					new ResourceLayout(16, 0, 1196,  41,   16, 0, 1196,  41,    38278, 39011, 38284, 41009, 41007),
-					new ResourceLayout(16, 0, 1196,  14,   16, 0, 1196,  35,    38276, 39011, 38282, 41009, 41007),
-					
-					new ResourceLayout(15, 0, 1147, 130,   15, 0, 1147, 153,    38248, 39011, 38254, 41009, 41007),
-					new ResourceLayout(15, 0, 1147, 100,   15, 0, 1147, 100,    38248, 39011, 38254, 41008, 41006),
-					new ResourceLayout(15, 0, 1147,  72,   15, 0, 1147,  72,    38247, 39011, 38253, 41007, 41005),
-					new ResourceLayout(15, 0, 1147,  56,   15, 0, 1147,  61,    38245, 39011, 38251, 41007, 41005),
-					new ResourceLayout(15, 0, 1147,  44,   15, 0, 1147,  44,    38247, 39011, 38253, 41007, 41005),
-					new ResourceLayout(15, 0, 1147,  18,   15, 0, 1147,  24,    38247, 39010, 38253, 41007, 41005)
+					//               StartVersion        EndVersion           SpeeddialLayoutJs
+					//               |                   |                    |      StartPageHtml
+					//               |                   |                    |      |      PreinstalledSpeeddialsJs
+					//               |                   |                    |      |      |      ToolsCss
+					//               |                   |                    |      |      |      |      FilterCss
+					//               |                   |                    |      |      |      |      |
+					// newer builds with protected opera.pak                  |      |      |      |      |
+					new OperaVersion(18, 0, 1258,   1,   18, 0, 1258,   1,    43020, 43515, 43026, 41010, 41008, new OperaExePatch(0x0001602C, "0F 85 8A 00 00 00", "E9 8B 00 00 00 90", "Iver0")),
+					//               |                   |                    |      |      |      |      |
+					// older builds with unprotected opera.pak                |      |      |      |      |
+					new OperaVersion(17, 0, 1232,   0,   17, 0, 1232,   0,    43021, 43515, 43027, 41010, 41008),
+					new OperaVersion(17, 0, 1224,   1,   17, 0, 1224,   1,    43020, 43515, 43026, 41010, 41008),
+
+					new OperaVersion(16, 0, 1196,  45,   16, 0, 1196,  55,    38278, 39011, 38284, 41010, 41008),
+					new OperaVersion(16, 0, 1196,  41,   16, 0, 1196,  41,    38278, 39011, 38284, 41009, 41007),
+					new OperaVersion(16, 0, 1196,  14,   16, 0, 1196,  35,    38276, 39011, 38282, 41009, 41007),
+
+					new OperaVersion(15, 0, 1147, 130,   15, 0, 1147, 153,    38248, 39011, 38254, 41009, 41007),
+					new OperaVersion(15, 0, 1147, 100,   15, 0, 1147, 100,    38248, 39011, 38254, 41008, 41006),
+					new OperaVersion(15, 0, 1147,  72,   15, 0, 1147,  72,    38247, 39011, 38253, 41007, 41005),
+					new OperaVersion(15, 0, 1147,  56,   15, 0, 1147,  61,    38245, 39011, 38251, 41007, 41005),
+					new OperaVersion(15, 0, 1147,  44,   15, 0, 1147,  44,    38247, 39011, 38253, 41007, 41005),
+					new OperaVersion(15, 0, 1147,  18,   15, 0, 1147,  24,    38247, 39010, 38253, 41007, 41005)
+						
 				};
 				
 				ColoredConsole.WriteLine("Opera version: ~W{0}~N", version);
 				int layoutId = -1;
 				bool layoutFound = false;
 				
-				for (int n = 0; n < resourceLayouts.Length; n++)
+				for (int n = 0; n < operaVersions.Length; n++)
 				{
-					ResourceLayoutMatch match = resourceLayouts[n].Match(version);
-					if (match == ResourceLayoutMatch.True)
+					OperaVersionMatch match = operaVersions[n].Match(version);
+					if (match == OperaVersionMatch.True)
 					{
 						layoutId = n;
 						layoutFound = true;
 						break;
 					}
-					else if (match == ResourceLayoutMatch.Maybe)
+					else if (match == OperaVersionMatch.Maybe)
 					{
 						layoutId = n;
 					}
@@ -106,16 +111,23 @@ namespace OperaTools
 					ColoredConsole.WriteLine();
 				}
 
-				ResourceLayout resourceLayout = resourceLayouts[layoutId];
-				ColoredConsole.WriteLine("Using resource layout for Opera ~W{0}~N - ~W{1}~N builds.", resourceLayout.StartVersion, resourceLayout.EndVersion);
+				OperaVersion operaVersion = operaVersions[layoutId];
+				ColoredConsole.WriteLine("Using resource layout for Opera ~W{0}~N - ~W{1}~N builds.", operaVersion.StartVersion, operaVersion.EndVersion);
 				ColoredConsole.WriteLine();
 
 				if (!ColoredConsole.ReadBoolean("I would like to start patching: ", true))
 					return 1;
 				ColoredConsole.WriteLine();
 				
+				string originalExtension = ".sdpatch-original";
+				string originalFileName = fileName + originalExtension;
 				PakFile pakFile = new PakFile();
 				ColoredConsole.WriteLine("Reading ~W{0}~N ...", fileName);
+				if (!File.Exists(originalFileName))
+					File.Copy(fileName, originalFileName);
+				else
+					File.Copy(originalFileName, fileName, true);
+					
 				pakFile.Load(fileName);
 				
 				const string TEXT_MAX_X_COUNT = "  var MAX_X_COUNT = ";
@@ -129,7 +141,7 @@ namespace OperaTools
 				const string TEXT_PREINSTALLED_CHECK_URL_NEXTLINE = "  {";
 				const string TEXT_STYLE = "</style>";
 
-				string[] lines = pakFile.GetItem(resourceLayout.SpeeddialLayoutJs);
+				string[] lines = pakFile.GetItem(operaVersion.SpeeddialLayoutJs);
 				for (int n = 0; n < lines.Length; n++)
 				{
 					string line = lines[n];
@@ -140,9 +152,9 @@ namespace OperaTools
 					else if (line.StartsWith(TEXT_DIAL_HEIGHT))
 						lines[n] = TEXT_DIAL_HEIGHT + settings.SpeedDialPreviewHeight.ToString() + ";";
 				}
-				pakFile.SetItem(resourceLayout.SpeeddialLayoutJs, lines);
+				pakFile.SetItem(operaVersion.SpeeddialLayoutJs, lines);
 				
-				lines = pakFile.GetItem(resourceLayout.StartPageHtml);
+				lines = pakFile.GetItem(operaVersion.StartPageHtml);
 				for (int n = 0; n < lines.Length; n++)
 				{
 					string line = lines[n];
@@ -174,17 +186,17 @@ namespace OperaTools
 						lines[n] = TEXT_STYLE + settings.GetPatches("<style>", "</style>", CssPatchFile.StartPageHtml);
 					}
 				}
-				pakFile.SetItem(resourceLayout.StartPageHtml, lines);
+				pakFile.SetItem(operaVersion.StartPageHtml, lines);
 				
-				lines = pakFile.GetItem(resourceLayout.ToolsCss);
+				lines = pakFile.GetItem(operaVersion.ToolsCss);
 				lines[lines.Length - 1] = settings.GetPatches("", "", CssPatchFile.ToolsCss);
-				pakFile.SetItem(resourceLayout.ToolsCss, lines);
+				pakFile.SetItem(operaVersion.ToolsCss, lines);
 
-				lines = pakFile.GetItem(resourceLayout.FilterCss);
+				lines = pakFile.GetItem(operaVersion.FilterCss);
 				lines[lines.Length - 1] = settings.GetPatches("", "", CssPatchFile.FilterCss);
-				pakFile.SetItem(resourceLayout.FilterCss, lines);
+				pakFile.SetItem(operaVersion.FilterCss, lines);
 				
-				lines = pakFile.GetItem(resourceLayout.PreinstalledSpeeddialsJs);
+				lines = pakFile.GetItem(operaVersion.PreinstalledSpeeddialsJs);
 				for (int n = 0; n < lines.Length; n++)
 				{
 					string line = lines[n];
@@ -195,13 +207,51 @@ namespace OperaTools
 						break;
 					}
 				}
-				pakFile.SetItem(resourceLayout.PreinstalledSpeeddialsJs, lines);
+				pakFile.SetItem(operaVersion.PreinstalledSpeeddialsJs, lines);
 				
 				ColoredConsole.WriteLine("Writing ~W{0}~N ...", fileName);
 				
 				pakFile.Save(fileName + ".temp");
-				File.Move(fileName, String.Format("{0}.backup.{1:yyyyMMddHHmmss}", fileName, DateTime.Now));
+				File.Delete(fileName);
 				File.Move(fileName + ".temp", fileName);
+				
+				if (operaVersion.OperaExePatch != null)
+				{
+					string executableFileName = Path.ChangeExtension(fileName, ".exe");
+					string originalExecutableFileName = executableFileName + originalExtension;
+					OperaExePatch patch = operaVersion.OperaExePatch;
+
+					if (patch.Credits != null)
+					{
+						ColoredConsole.WriteLine();
+						ColoredConsole.WriteLine("Thanks to ~W{0}~N for this executable patch!", patch.Credits);
+						ColoredConsole.WriteLine();
+					}
+					
+					ColoredConsole.WriteLine("Reading ~W{0}~N ...", executableFileName);
+					if (!File.Exists(originalExecutableFileName))
+						File.Copy(executableFileName, originalExecutableFileName);
+					else
+						File.Copy(originalExecutableFileName, executableFileName, true);
+					
+					byte[] operaExe = File.ReadAllBytes(executableFileName);
+					if (operaExe.Length < patch.Offset + patch.Original.Length)
+						throw new InvalidOperationException("Invalid executable patch: offset error.");
+					
+					for (int n = 0; n < patch.Original.Length; n++)
+					{
+						if (operaExe[patch.Offset + n] != patch.Original[n])
+							throw new InvalidOperationException("Invalid executable patch: original data do not match.");
+						
+						operaExe[patch.Offset + n] = patch.Patched[n];
+					}
+
+					ColoredConsole.WriteLine("Writing ~W{0}~N ...", executableFileName);
+					File.WriteAllBytes(executableFileName + ".temp", operaExe);
+					File.Delete(executableFileName);
+					File.Move(executableFileName + ".temp", executableFileName);
+				}
+				
 				result = 0;
 			}
 			catch (Exception ex)
@@ -271,14 +321,82 @@ namespace OperaTools
 		}
 	}
 	
-	public enum ResourceLayoutMatch
+	public enum OperaVersionMatch
 	{
 		True,
 		False,
 		Maybe
 	}
 	
-	public class ResourceLayout
+	public class OperaExePatch
+	{
+		public int Offset;
+		public byte[] Original;
+		public byte[] Patched;
+		public string Credits;
+		
+		public OperaExePatch(int offset, byte[] original, byte[] patched, string credits)
+		{
+			Offset = offset;
+			Original = original;
+			Patched = patched;
+			Credits = credits;
+			if (original.Length != patched.Length)
+				throw new InvalidOperationException("Invalid executable patch: original and patched block sizes have different size.");
+		}
+		
+		public OperaExePatch(int offset, string original, string patched, string credits) :
+			this(offset, GetBytes(original), GetBytes(patched), credits)
+		{
+		}
+		
+		private static byte[] GetBytes(string s)
+		{
+			int n1 = 0;
+			for (int n = 0; n < s.Length; n++)
+			{
+				char ch = s[n];
+				if (ch == ' ')
+					continue;
+				
+				GetByte(ch);
+				n1++;
+			}
+			
+			if ((n1 & 1) != 0)
+				throw new InvalidOperationException("Invalid executable patch: odd hextring length.");
+			
+			byte[] result = new byte[n1 / 2];
+			n1 = 0;
+			for (int n = 0; n < s.Length; n++)
+			{
+				char ch = s[n];
+				if (ch == ' ')
+					continue;
+				
+				byte b = GetByte(ch);
+				if ((n1 & 1) == 0)
+					result[n1++ / 2] = (byte)(b << 4);
+				else
+					result[n1++ / 2] |= b;
+			}
+			return result;
+		}
+		
+		private static byte GetByte(char ch)
+		{
+			if (ch >= '0' && ch <= '9')
+				return (byte)(ch - '0');
+			else if (ch >= 'a' && ch <= 'f')
+				return (byte)(ch - 'a' + 10);
+			else if (ch >= 'A' && ch <= 'F')
+				return (byte)(ch - 'A' + 10);
+			else
+				throw new InvalidOperationException("Invalid executable patch: invalid character in hexstring.");
+		}
+	}
+	
+	public class OperaVersion
 	{
 		public Version StartVersion;
 		public Version EndVersion;
@@ -288,13 +406,19 @@ namespace OperaTools
 		public int PreinstalledSpeeddialsJs;
 		public int ToolsCss;
 		public int FilterCss;
+		public OperaExePatch OperaExePatch;
 
-		public ResourceLayout(int startVersionMajor, int startVersionMinor, int startVersionBuild, int startVersionRevision, int endVersionMajor, int endVersionMinor, int endVersionBuild, int endVersionRevision, int speeddialLayoutJs, int startPageHtml, int preinstalledSpeeddialsJs, int toolsCss, int filterCss) :
-			this(new Version(startVersionMajor, startVersionMinor, startVersionBuild, startVersionRevision), new Version(endVersionMajor, endVersionMinor, endVersionBuild, endVersionRevision), speeddialLayoutJs, startPageHtml, preinstalledSpeeddialsJs, toolsCss, filterCss)
+		public OperaVersion(int startVersionMajor, int startVersionMinor, int startVersionBuild, int startVersionRevision, int endVersionMajor, int endVersionMinor, int endVersionBuild, int endVersionRevision, int speeddialLayoutJs, int startPageHtml, int preinstalledSpeeddialsJs, int toolsCss, int filterCss) :
+			this(new Version(startVersionMajor, startVersionMinor, startVersionBuild, startVersionRevision), new Version(endVersionMajor, endVersionMinor, endVersionBuild, endVersionRevision), speeddialLayoutJs, startPageHtml, preinstalledSpeeddialsJs, toolsCss, filterCss, null)
 		{
 		}
 
-		public ResourceLayout(Version startVersion, Version endVersion, int speeddialLayoutJs, int startPageHtml, int preinstalledSpeeddialsJs, int toolsCss, int filterCss)
+		public OperaVersion(int startVersionMajor, int startVersionMinor, int startVersionBuild, int startVersionRevision, int endVersionMajor, int endVersionMinor, int endVersionBuild, int endVersionRevision, int speeddialLayoutJs, int startPageHtml, int preinstalledSpeeddialsJs, int toolsCss, int filterCss, OperaExePatch operaExePatch) :
+			this(new Version(startVersionMajor, startVersionMinor, startVersionBuild, startVersionRevision), new Version(endVersionMajor, endVersionMinor, endVersionBuild, endVersionRevision), speeddialLayoutJs, startPageHtml, preinstalledSpeeddialsJs, toolsCss, filterCss, operaExePatch)
+		{
+		}
+
+		public OperaVersion(Version startVersion, Version endVersion, int speeddialLayoutJs, int startPageHtml, int preinstalledSpeeddialsJs, int toolsCss, int filterCss, OperaExePatch operaExePatch)
 		{
 			StartVersion = startVersion;
 			EndVersion = endVersion;
@@ -303,18 +427,19 @@ namespace OperaTools
 			PreinstalledSpeeddialsJs = preinstalledSpeeddialsJs;
 			ToolsCss = toolsCss;
 			FilterCss = filterCss;
+			OperaExePatch = operaExePatch;
 		}
 		
-		public ResourceLayoutMatch Match(Version version)
+		public OperaVersionMatch Match(Version version)
 		{
 			if (version < StartVersion)
-				return ResourceLayoutMatch.False;
+				return OperaVersionMatch.False;
 			else if (version <= EndVersion)
-				return ResourceLayoutMatch.True;
+				return OperaVersionMatch.True;
 			else if (version.Major == EndVersion.Major && version.Minor == EndVersion.Minor && version.Build == EndVersion.Build)
-				return ResourceLayoutMatch.Maybe;
+				return OperaVersionMatch.Maybe;
 			else
-				return ResourceLayoutMatch.False;
+				return OperaVersionMatch.False;
 		}
 	}
 	
