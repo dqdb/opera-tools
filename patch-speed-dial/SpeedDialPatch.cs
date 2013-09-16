@@ -19,7 +19,7 @@ namespace OperaTools
 			
 			try
 			{
-				ColoredConsole.WriteLine("~WOpera Speed Dial Patch 1.4.0~N");
+				ColoredConsole.WriteLine("~WOpera Speed Dial Patch 1.5.0~N");
 				ColoredConsole.WriteLine("~WCopyright (c) 2013 dqdb~N");
 				ColoredConsole.WriteLine();
 				Settings settings = new Settings();
@@ -57,7 +57,8 @@ namespace OperaTools
 					//               |                   |                    |      |      |      |      FilterCss
 					//               |                   |                    |      |      |      |      |
 					// newer builds with protected opera.pak                  |      |      |      |      |
-					new OperaVersion(18, 0, 1258,   1,   18, 0, 1258,   1,    43020, 43515, 43026, 41010, 41008, new OperaExePatch(0x0001602C, "0F 85 8A 00 00 00", "E9 8B 00 00 00 90", "Iver0")),
+					new OperaVersion(18, 0, 1264,   0,   18, 0, 1264,   0,    43020, 43515, 43026, 41010, 41008, new OperaExePatch(0x00015dfc, "0F 85 8A 00 00 00", "E9 8B 00 00 00 90", null)),
+					new OperaVersion(18, 0, 1258,   1,   18, 0, 1258,   1,    43020, 43515, 43026, 41010, 41008, new OperaExePatch(0x0001602c, "0F 85 8A 00 00 00", "E9 8B 00 00 00 90", "Iver0")),
 					//               |                   |                    |      |      |      |      |
 					// older builds with unprotected opera.pak                |      |      |      |      |
 					new OperaVersion(17, 0, 1232,   0,   17, 0, 1232,   0,    43021, 43515, 43027, 41010, 41008),
