@@ -1,4 +1,4 @@
 /* patchtitle:Start Page # Hide Google search bar only */
 /* patchfile:StartPageHtml */
-form { display: none !important; } 
+form.web-search { display: none !important; } 
 #view-container { top: 38px !important; }
