@@ -16,10 +16,13 @@ All versions are supported.
 Only *Opera 17.0.1232.0* is supported. Subsequent *Opera Next 17* and *Opera Stable 17* builds will not be supported.
 
 ###Opera 18
-*Opera 18.0.1258.1*, *Opera 18.0.1264.0* and *Opera 18.0.1267.0* are supported. I will try to support all future *Opera Developer* builds until built-in Speed Dial customization will be supported. *Opera Next* and *Opera Stable* builds will **not** be supported (I am using developer stream builds only and binary patching takes a lot of time). Because this tool has to patch *opera.exe* also, you have to wait for me to update the tool after each Opera Developer update.
+All build up to *Opera 18.0.1271.0* are supported. I will try to support all future *Opera Developer* builds until built-in Speed Dial customization will be supported. *Opera Next* and *Opera Stable* builds will **not** be supported (I am using developer stream builds only and binary patching takes a lot of time). Because this tool has to patch *opera.exe* also, you have to wait for me to update the tool after each Opera Developer update.
 
 #Requirements
 1. *XP only:* install Microsoft .NET Framework 2.0 if it is not installed already 
+
+###Changes in 1.7.0 (2013-09-23)
+* Updated for *Opera 18.0.1271.0*
 
 ###Changes in 1.6.0 (2013-09-19)
 * Updated for *Opera 18.0.1267.0*
