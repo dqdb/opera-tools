@@ -16,10 +16,16 @@ All versions are supported.
 Only *Opera 17.0.1232.0* is supported. Subsequent *Opera Next 17* and *Opera Stable 17* builds will not be supported.
 
 ###Opera 18
-All build up to *Opera 18.0.1271.0* are supported. I will try to support all future *Opera Developer* builds until built-in Speed Dial customization will be supported. *Opera Next* and *Opera Stable* builds will **not** be supported (I am using developer stream builds only and binary patching takes a lot of time). Because this tool has to patch *opera.exe* also, you have to wait for me to update the tool after each Opera Developer update.
+All build up to *Opera 18.0.1274.0.8* are supported. I will try to support all future *Opera Developer* builds until built-in Speed Dial customization will be supported. *Opera Next* and *Opera Stable* builds will **not** be supported (I am using developer stream builds only and binary patching takes a lot of time). Because this tool has to patch *opera.exe* also, you have to wait for me to update the tool after each Opera Developer update.
 
 #Requirements
 1. *XP only:* install Microsoft .NET Framework 2.0 if it is not installed already 
+
+###Changes on 2013-09-29
+* Updated for *Opera 18.0.1274.0.8*
+* Added heuristics to for patching unknown versions
+* Added program icon
+* Code refactoring, sources transformed into a VS2010 project
 
 ###Changes in 1.7.0 (2013-09-23)
 * Updated for *Opera 18.0.1271.0*
@@ -44,3 +50,6 @@ All build up to *Opera 18.0.1271.0* are supported. I will try to support all fut
 
 ###Changes in version 1.1.0 (2013-08-08)
 * Updated for Opera 17.0.1224.1 (second resource layout)
+
+###Thanks
+Thanks to [Izer0](http://my.opera.com/nanit76/about/) for the patches, to [dAKirby309](http://www.iconarchive.com/artist/dakirby309.html) and to [Klukeart](http://www.iconarchive.com/artist/klukeart.html) for the icons.
