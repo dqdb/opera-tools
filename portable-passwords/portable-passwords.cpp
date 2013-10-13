@@ -259,8 +259,13 @@ HRESULT ProcessPasswords(PCWSTR pwszSourceFolder, PCWSTR pwszTargetFolder, bool 
 	if (fDecrypt)
 	{
 		// keep only backup database files to avoid mixing up encrypted and portable variants
-		DeleteFile(wszSourceLoginData);
-		DeleteFile(wszSourceLoginDataJournal);
+		PathCombine_s(wszBackupLoginData, MAX_PATH, pwszSourceFolder, FILENAME_LOGIN_DATA EXTENSION_BACKUP);
+		PathCombine_s(wszBackupLoginDataJournal, MAX_PATH, pwszSourceFolder, FILENAME_LOGIN_DATA EXTENSION_BACKUP EXTENSION_JOURNAL);
+
+		DeleteFile(wszBackupLoginData);
+		DeleteFile(wszBackupLoginDataJournal);
+		MoveFile(wszSourceLoginData, wszBackupLoginData);
+		MoveFile(wszSourceLoginDataJournal, wszBackupLoginDataJournal);
 	}
 
 	return S_OK;
