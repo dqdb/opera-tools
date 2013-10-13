@@ -256,6 +256,13 @@ HRESULT ProcessPasswords(PCWSTR pwszSourceFolder, PCWSTR pwszTargetFolder, bool 
 		!MoveFile(wszTempLoginDataJournal, wszTargetLoginDataJournal))
 		return HRESULT_FROM_WIN32(GetLastError());
 
+	if (!fDecrypt)
+	{
+		// keep only backup database files to avoid mixing up encrypted and portable variants
+		DeleteFile(wszSourceLoginData);
+		DeleteFile(wszSourceLoginDataJournal);
+	}
+
 	return S_OK;
 }
 
