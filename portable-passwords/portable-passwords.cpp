@@ -12,7 +12,7 @@
 #define EXTENSION_JOURNAL							L"-journal"
 #define EXTENSION_TEMP								L".temp"
 #define EXTENSION_BACKUP							L".backup"
-#define FOLDER_PASSWORDS							L"PortablePasswords"
+#define FOLDER_PASSWORDS							L"Portable Passwords"
 
 #define ERROR_UNABLE_TO_FIND_LAUNCHER_EXE			1
 #define ERROR_UNABLE_TO_FIND_OPERA_PROFILE			2
@@ -256,7 +256,7 @@ HRESULT ProcessPasswords(PCWSTR pwszSourceFolder, PCWSTR pwszTargetFolder, bool 
 		!MoveFile(wszTempLoginDataJournal, wszTargetLoginDataJournal))
 		return HRESULT_FROM_WIN32(GetLastError());
 
-	if (!fDecrypt)
+	if (fDecrypt)
 	{
 		// keep only backup database files to avoid mixing up encrypted and portable variants
 		DeleteFile(wszSourceLoginData);
