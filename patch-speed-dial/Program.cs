@@ -23,6 +23,7 @@ namespace SpeedDialPatch
                 settings.LoadFromConfigFile();
                 settings.LoadFromCommandLine(args);
                 settings.LoadFromConsole();
+                settings.LoadCustomThumbnails();
                 settings.SaveToConfigFile();
                 ColoredConsole.WriteLine();
 
@@ -65,6 +66,7 @@ namespace SpeedDialPatch
                     ColoredConsole.WriteLine("SpeeddialLayoutJs: ~W{0}~N", operaPatch.SpeeddialLayoutJs);
                     ColoredConsole.WriteLine("StartPageHtml: ~W{0}~N", operaPatch.StartPageHtml);
                     ColoredConsole.WriteLine("PreinstalledSpeeddialsJs: ~W{0}~N", operaPatch.PreinstalledSpeeddialsJs);
+                    ColoredConsole.WriteLine("SpeeddialSuggestionsJs: ~W{0}~N", operaPatch.SpeeddialSuggestionsJs);
                     ColoredConsole.WriteLine("ToolsCss: ~W{0}~N", operaPatch.ToolsCss);
                     ColoredConsole.WriteLine("FilterCss: ~W{0}~N", operaPatch.FilterCss);
                     ColoredConsole.WriteLine();
