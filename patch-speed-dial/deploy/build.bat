@@ -1,10 +1,13 @@
 @ECHO OFF
 MD temp 2>nul
 MD temp\sdpatch 2>nul
+MD temp\sdimages 2>nul
 DEL temp\* /Q
 DEL temp\sdpatch\* /Q
+DEL temp\sdimages\* /Q
 COPY ..\readme.md temp >nul
 COPY ..\sdpatch\* temp\sdpatch >nul
+COPY ..\sdimages\* temp\sdimages >nul
 
 %WINDIR%\Microsoft.NET\Framework\v2.0.50727\csc /out:temp\SpeedDialPatch.exe /win32icon:..\resources\SpeedDialPatch.ico /nologo ..\*.cs
 IF ERRORLEVEL 1 GOTO end

@@ -1,4 +1,4 @@
-Patch Opera Developer to support more speed dial columns and smaller/larger preview images, and injects custom CSS styles into internal pages.
+Patch Opera Developer to support more speed dial columns and smaller/larger thumbnail images, set custom thumbnails and injects custom CSS styles into internal pages.
 
 #Usage
 1. exit Opera
@@ -7,19 +7,25 @@ Patch Opera Developer to support more speed dial columns and smaller/larger prev
 4. enter speed dial configuration values
 5. run Opera again
 
-You have to delete and add again default speed dial entries (like Facebook, YouTube, etc.) if you disable built-in speed dial preview images. Because this tool modifies the **opera.pak** file (and in newer builds **opera.exe** also), you must run the tool after each Opera update.
+You have to delete and add again default speed dial entries (like Facebook, YouTube, etc.) if you disable built-in speed dial thumbnail images. 
 
-###Opera 15 and 16
-All versions are supported. 
+If you want to use a custom thumbnail for site *www.something.com*, *something.com* or *anything.something.com*, create *something.com.png* image file with the desired resolution in the *sdimages* folder. Using a lot of custom thumbnail may slow down Speed Dial.
 
-###Opera 17
-Only *Opera 17.0.1232.0* is supported. Subsequent *Opera Next 17* and *Opera Stable 17* builds will not be supported.
+Because this tool modifies the **opera.pak** file (and in newer builds **opera.exe** also), you must run the tool after each Opera update.
+
+###Opera 15, 16 and 17
+Not supported.
 
 ###Opera 18
-All build up to *Opera 18.0.1274.0.8* are supported. I will try to support all future *Opera Developer* builds until built-in Speed Dial customization will be supported. *Opera Next* and *Opera Stable* builds will **not** be supported (I am using developer stream builds only and binary patching takes a lot of time). Because this tool has to patch *opera.exe* also, you have to wait for me to update the tool after each Opera Developer update.
+*Opera 18.0.1284.5* is supported. I will try to support all future *Opera Developer* builds until built-in Speed Dial customization will be supported. *Opera Next* and *Opera Stable* builds will **not** be supported (I am using developer stream builds only and binary patching takes a lot of time). Because this tool has to patch *opera.exe* also, you have to wait for me to update the tool after each Opera Developer update if heuristics fails.
 
 #Requirements
 1. *XP only:* install Microsoft .NET Framework 2.0 if it is not installed already 
+
+###Changes on 2013-10-16
+* Updated for *Opera 18.0.1284.5*
+* Dropped support for Opera 15, 16 and 17
+* Added custom speed dial thumbnails
 
 ###Changes on 2013-09-29
 * Updated for *Opera 18.0.1274.0.8*
