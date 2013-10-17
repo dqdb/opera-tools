@@ -8,7 +8,7 @@
 #define FILENAME_LOGIN_DATA							L"Login Data"
 #define FILENAME_PREFERENCES						L"Preferences"
 #define FILENAME_LAUNCHER_EXE						L"launcher.exe"
-#define FILENAME_LOCKFILE							L"lockfile"
+#define FILENAME_LOCKFILE                           L"lockfile"
 #define EXTENSION_JOURNAL							L"-journal"
 #define EXTENSION_TEMP								L".temp"
 #define EXTENSION_BACKUP							L".backup"
@@ -51,7 +51,7 @@ char * LoadFileIntoString(PCWSTR pwszFileName)
 }
 
 // not the nicest solution, but it does not require a complete JSON reader library
-bool IsOperaPortable()
+bool IsPortable()
 {
 	char * pszInstallerPrefsJson = LoadFileIntoString(FILENAME_INSTALLER_PREFS_JSON);
 	if (pszInstallerPrefsJson == NULL)
@@ -63,7 +63,7 @@ bool IsOperaPortable()
 }
 
 // not the nicest solution, but it does not require using MSXML or other XML library
-PCWSTR GetOperaChannel()
+PCWSTR GetChannel()
 {
 	char * pszInstallationStatusXml = LoadFileIntoString(FILENAME_INSTALLATION_STATUS);
 	if (pszInstallationStatusXml == NULL)
@@ -109,7 +109,7 @@ PCWSTR PathCombine_s(PWSTR pwszPathOut, int cchPathOut, PCWSTR pwszPathIn, PCWST
 
 bool GetOperaProfileFolder(PWSTR pwsz, int cch)
 {
-	if (IsOperaPortable())
+	if (IsPortable())
 	{
 		GetCurrentDirectory(cch, pwsz);
 		PathAppend_s(pwsz, cch, L"profile\\data");
@@ -119,7 +119,7 @@ bool GetOperaProfileFolder(PWSTR pwsz, int cch)
 	if (cch < MAX_PATH)
 		return false;
 
-	PCWSTR pwszChannel = GetOperaChannel();
+	PCWSTR pwszChannel = GetChannel();
 	if (pwszChannel == NULL)
 		return false;
 
@@ -271,6 +271,66 @@ HRESULT ProcessPasswords(PCWSTR pwszSourceFolder, PCWSTR pwszTargetFolder, bool 
 	return S_OK;
 }
 
+bool IsRunning(PCWSTR pwszLauncherExe)
+{
+	WCHAR wszLauncherFolder[MAX_PATH];
+	wcscpy_s(wszLauncherFolder, pwszLauncherExe);
+	PathRemoveFileSpec(wszLauncherFolder);
+	PathAddBackslash_s(wszLauncherFolder, MAX_PATH);
+	int cchLauncherFolder = wcslen(wszLauncherFolder);
+
+	HANDLE handleProcesses = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+	if (handleProcesses == INVALID_HANDLE_VALUE)
+		return false;
+
+	PROCESSENTRY32 pe;
+	HANDLE handleOpera = NULL;
+	pe.dwSize = sizeof(pe);
+	if (!Process32First(handleProcesses, &pe))
+	{
+		CloseHandle(handleProcesses);
+		return false;
+	}
+
+	bool fRunning = false;
+	do
+	{
+		bool fIsOpera = _wcsicmp(pe.szExeFile, L"opera.exe") == 0;
+		if (fIsOpera || _wcsicmp(pe.szExeFile, L"launcher.exe") == 0)
+		{
+			HANDLE handleModules = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, pe.th32ProcessID);
+			if (handleModules != INVALID_HANDLE_VALUE)
+			{
+				MODULEENTRY32 me;
+				me.dwSize = sizeof(me);
+
+				if (Module32First(handleModules, &me))
+				{
+					do
+					{
+						if ((fIsOpera && _wcsnicmp(wszLauncherFolder, me.szExePath, cchLauncherFolder) == 0) ||
+							(!fIsOpera && _wcsicmp(pwszLauncherExe, me.szExePath) == 0))
+						{
+							fRunning = true;
+							break;
+						}
+					}
+					while (Module32Next(handleModules, &me));
+				}
+
+				CloseHandle(handleModules);
+
+				if (fRunning)
+					break;
+			}
+		}
+	}
+	while (Process32Next(handleProcesses, &pe));
+
+	CloseHandle(handleProcesses);
+	return fRunning;
+}
+
 void WaitOperaToStop(PROCESS_INFORMATION * ppi)
 {
 	// wait launcher.exe to exit
@@ -332,22 +392,23 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 	if (!PathFileExists(wszLauncherExe))
 		return Error(ERROR_UNABLE_TO_FIND_LAUNCHER_EXE, L"Unable to find Opera executable.");
 
+	if (IsRunning(wszLauncherExe))
+		return 0;
+
 	if (!GetOperaProfileFolder(wszProfileFolder, MAX_PATH))
 		return Error(ERROR_UNABLE_TO_FIND_OPERA_PROFILE, L"Unable to find Opera profile folder.");
-
-	PathCombine_s(wszLockFile, MAX_PATH, wszProfileFolder, FILENAME_LOCKFILE);
-	if (PathFileExists(wszLockFile))
-		return 0;
 
 	PathCombine_s(wszPreferences, MAX_PATH, wszProfileFolder, FILENAME_PREFERENCES);
 	if (!PathFileExists(wszPreferences))
 		return Error(ERROR_INVALID_OPERA_PROFILE, L"Invalid or corrupted Opera profile folder.");
 
+	PathCombine_s(wszLockFile, MAX_PATH, wszProfileFolder, FILENAME_LOCKFILE);
+
 	PathCombine_s(wszPasswordsFolder, MAX_PATH, wszProfileFolder, FOLDER_PASSWORDS);
 	if (!CreateDirectory(wszPasswordsFolder, NULL) && GetLastError() != ERROR_ALREADY_EXISTS)
 		return Error(ERROR_UNABLE_TO_CREATE_PASSWORDS_FOLDER, L"Unable to create folder \"Passwords\" [%d].", GetLastError());
 
-	HRESULT hr = ProcessPasswords(wszPasswordsFolder, wszProfileFolder, false);
+	HRESULT hr = PathFileExists(wszLockFile) ? S_OK : ProcessPasswords(wszPasswordsFolder, wszProfileFolder, false);
 	if (FAILED(hr))
 		Error(ERROR_UNABLE_TO_ENCRYPT_PASSWORDS, L"Unable to process passwords before running Opera [%08x].", hr);
 
