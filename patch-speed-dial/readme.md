@@ -1,4 +1,4 @@
-Patch Opera Developer to support more speed dial columns and smaller/larger thumbnail images, set custom thumbnails and injects custom CSS styles into internal pages.
+Patch Opera Developer to support more speed dial columns and smaller/larger thumbnail images, set custom thumbnails and injects custom CSS styles into internal pages, or to modify the default search engine.
 
 #Usage
 1. exit Opera
@@ -9,7 +9,9 @@ Patch Opera Developer to support more speed dial columns and smaller/larger thum
 
 You have to delete and add again default speed dial entries (like Facebook, YouTube, etc.) if you disable built-in speed dial thumbnail images. 
 
-If you want to use a custom thumbnail for site *www.something.com*, *something.com* or *anything.something.com*, create *something.com.png* image file with the desired resolution in the *sdimages* folder. Using a lot of custom thumbnail may slow down Speed Dial.
+If you want to use a custom thumbnail for site *www.something.com*, *something.com* or *anything.something.com*, create *something.com.png* image file with the desired resolution in the *sdimages* folder. Using cropping or a lot of custom thumbnail may slow down Speed Dial. 
+
+Default search engine parameters have strict character limits which cannot be increased.
 
 Because this tool modifies the **opera.pak** file (and in newer builds **opera.exe** also), you must run the tool after each Opera update.
 
@@ -21,6 +23,12 @@ Not supported.
 
 #Requirements
 1. *XP only:* install Microsoft .NET Framework 2.0 if it is not installed already 
+
+###Changes on 2013-10-19
+* Added new CSS files to hide speed dial labels
+* Added an option to modify vertical and horizontal spacing between thumbnails
+* Added an option to create cropped thumbnail images like in Opera 12 instead of scaled ones (see note)
+* Added default search engine editor
 
 ###Changes on 2013-10-16
 * Updated for *Opera 18.0.1284.5*
