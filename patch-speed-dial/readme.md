@@ -9,7 +9,9 @@ Patch Opera Developer to support more speed dial columns and smaller/larger thum
 
 You have to delete and add again default speed dial entries (like Facebook, YouTube, etc.) if you disable built-in speed dial thumbnail images. 
 
-If you want to use a custom thumbnail for site *www.something.com*, *something.com* or *anything.something.com*, create *something.com.png* image file with the desired resolution in the *sdimages* folder. Using cropping or a lot of custom thumbnail may slow down Speed Dial. 
+If you want to use a custom thumbnail for site *www.something.com*, *something.com* or *anything.something.com*, create *something.com.png* image file with the desired resolution in the *sdimages* folder. Using a lot of custom thumbnail may slow down Speed Dial. 
+
+I known that cropped thumbnails are blurred, but I cannot do anything against it, Opera 12 had a nicer thumbnail generation algorithm. Using cropping may increase Opera memory consumption.
 
 Default search engine parameters have strict character limits which cannot be increased.
 
