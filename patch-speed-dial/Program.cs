@@ -21,9 +21,7 @@ namespace SpeedDialPatch
                 ColoredConsole.WriteLine();
                 Settings settings = new Settings();
                 settings.LoadFromConfigFile();
-                settings.LoadFromCommandLine(args);
                 settings.LoadFromConsole();
-                settings.LoadCustomThumbnails();
                 settings.SaveToConfigFile();
                 ColoredConsole.WriteLine();
 
@@ -73,7 +71,7 @@ namespace SpeedDialPatch
 
                     ColoredConsole.WriteLine("~y~KWarning:~k~Y this Opera version is probably supported, but it is ~y~KNOT~k~Y tested yet. Improper patching may have side effects.~N");
                     ColoredConsole.WriteLine();
-                    if (!ColoredConsole.ReadBoolean("I understand the risks: ", false))
+                    if (!ColoredConsole.Read("I understand the risks: ", false))
                         return 1;
                     ColoredConsole.WriteLine();
                 }
@@ -83,7 +81,7 @@ namespace SpeedDialPatch
                     ColoredConsole.WriteLine();
                 }
 
-                if (!ColoredConsole.ReadBoolean("I would like to start patching: ", true))
+                if (!ColoredConsole.Read("I would like to start patching: ", true))
                     return 1;
 
                 ColoredConsole.WriteLine();

@@ -68,7 +68,58 @@ namespace SpeedDialPatch
             Console.ResetColor();
         }
 
-        public static int ReadNumber(string title, int defaultValue)
+        public static string Read(string title, string defaultValue)
+        {
+            return Read(title, -1, defaultValue);
+        }
+
+        public static string Read(string title, int maxLength, string defaultValue)
+        {
+            string value = defaultValue;
+            Console.Write(title);
+            Console.ForegroundColor = ConsoleColor.White;
+
+            if (maxLength != -1 && value.Length > maxLength)
+                value = value.Substring(0, maxLength);
+
+            Console.Write(value);
+
+            for (; ; )
+            {
+                ConsoleKeyInfo keyInfo = Console.ReadKey(true);
+                if (keyInfo.Key == ConsoleKey.Enter || keyInfo.Key == ConsoleKey.Escape)
+                {
+                    Console.ResetColor();
+                    Console.WriteLine();
+
+                    if (keyInfo.Key == ConsoleKey.Escape)
+                        Environment.Exit(1);
+
+                    return value;
+                }
+                else if (keyInfo.Key == ConsoleKey.Escape)
+                {
+                    Console.ResetColor();
+                    Console.WriteLine();
+                    Environment.Exit(1);
+                }
+                else if (keyInfo.Key == ConsoleKey.Backspace)
+                {
+                    if (value.Length > 0)
+                    {
+                        value = value.Substring(0, value.Length - 1);
+                        ClearToLeft();
+                    }
+                }
+                else if (maxLength == -1 || value.Length < maxLength)
+                {
+                    value += keyInfo.KeyChar;
+                    Console.Write(keyInfo.KeyChar);
+                }
+            }
+        }
+
+        public static int Read(string title, int defaultValue)
         {
             string value = defaultValue.ToString();
             Console.Write(title);
@@ -86,7 +137,7 @@ namespace SpeedDialPatch
                     if (keyInfo.Key == ConsoleKey.Escape)
                         Environment.Exit(1);
 
-                    return value.Length == 0 ? 0 : Convert.ToInt32(value); ;
+                    return value.Length == 0 ? 0 : Convert.ToInt32(value);
                 }
                 else if (keyInfo.Key == ConsoleKey.Escape)
                 {
@@ -102,21 +153,21 @@ namespace SpeedDialPatch
                 else if (keyInfo.Key == ConsoleKey.Backspace && value.Length > 0)
                 {
                     value = value.Substring(0, value.Length - 1);
-                    Console.SetCursorPosition(Console.CursorLeft - 1, Console.CursorTop);
-                    Console.Write(' ');
-                    Console.SetCursorPosition(Console.CursorLeft - 1, Console.CursorTop);
+                    ClearToLeft();
                 }
             }
         }
 
-        public static bool ReadBoolean(string title, bool defaultValue)
+        public static bool Read(string title, bool defaultValue)
         {
+            bool value = defaultValue;
             Console.Write(title);
             Console.ForegroundColor = ConsoleColor.White;
             int left = Console.CursorLeft;
-            Console.Write(defaultValue ? "yes" : "no");
+            int top = Console.CursorTop;
+            Console.Write(value ? "yes" : "no");
 
-            for (bool prevValue = defaultValue; ; )
+            for (bool prevValue = value; ; )
             {
                 ConsoleKey key = Console.ReadKey(true).Key;
                 if (key == ConsoleKey.Enter || key == ConsoleKey.Escape)
@@ -127,22 +178,38 @@ namespace SpeedDialPatch
                     if (key == ConsoleKey.Escape)
                         Environment.Exit(1);
 
-                    return defaultValue;
+                    return value;
                 }
 
                 if (key == ConsoleKey.Y)
-                    defaultValue = true;
+                    value = true;
                 else if (key == ConsoleKey.N)
-                    defaultValue = false;
+                    value = false;
                 else if (key == ConsoleKey.Spacebar)
-                    defaultValue = !defaultValue;
+                    value = !value;
                 else
                     continue;
 
-                Console.SetCursorPosition(left, Console.CursorTop);
-                Console.Write(defaultValue ? "yes" : "no ");
-                if (!defaultValue)
-                    Console.SetCursorPosition(Console.CursorLeft - 1, Console.CursorTop);
+                Console.SetCursorPosition(left, top);
+                Console.Write(value ? "yes" : "no ");
+                if (!value)
+                    ClearToLeft();
+            }
+        }
+
+        public static void ClearToLeft()
+        {
+            if (Console.CursorLeft > 0)
+            {
+                Console.SetCursorPosition(Console.CursorLeft - 1, Console.CursorTop);
+                Console.Write(' ');
+                Console.SetCursorPosition(Console.CursorLeft - 1, Console.CursorTop);
+            }
+            else
+            {
+                Console.SetCursorPosition(Console.WindowWidth - 1, Console.CursorTop - 1);
+                Console.Write(' ');
+                Console.SetCursorPosition(Console.WindowWidth - 1, Console.CursorTop - 1);
             }
         }
     }

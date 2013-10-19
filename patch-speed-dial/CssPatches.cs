@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
+using System.Xml;
 
 namespace SpeedDialPatch
 {
@@ -30,7 +31,25 @@ namespace SpeedDialPatch
             }
         }
 
-        public void LoadFromConfigFile(string value)
+        public void LoadFromConfig(XmlNode node, string name)
+        {
+            node = node.SelectSingleNode(name);
+            if (node == null)
+                return;
+
+            XmlNodeList nodes = node.SelectNodes("cssPatch");
+            if (nodes == null)
+                return;
+
+            foreach (XmlNode node1 in nodes)
+            {
+                CssPatch patch;
+                if (Patches.TryGetValue(node1.InnerText, out patch))
+                    patch.IsEnabled = true;
+            }
+        }
+
+        public void LoadFromString(string value)
         {
             string[] values = value.Split(':');
             for (int n = 0; n < values.Length; n++)
@@ -47,23 +66,21 @@ namespace SpeedDialPatch
             {
                 ColoredConsole.WriteLine();
                 foreach (KeyValuePair<string, CssPatch> kvp in Patches)
-                    kvp.Value.IsEnabled = ColoredConsole.ReadBoolean(kvp.Value.Description + ": ", kvp.Value.IsEnabled);
+                    kvp.Value.IsEnabled = ColoredConsole.Read(kvp.Value.Description + ": ", kvp.Value.IsEnabled);
+
+                ColoredConsole.WriteLine();
             }
         }
 
-        public string SaveToConfigFile()
+        public void SaveToConfig(XmlWriter writer, string name)
         {
-            StringBuilder patches = new StringBuilder();
+            writer.WriteStartElement(name);
             foreach (KeyValuePair<string, CssPatch> kvp in Patches)
             {
                 if (kvp.Value.IsEnabled)
-                {
-                    if (patches.Length > 0)
-                        patches.Append(':');
-                    patches.Append(kvp.Key);
-                }
+                    writer.WriteElementString("cssPatch", kvp.Key);
             }
-            return patches.ToString();
+            writer.WriteEndElement();
         }
 
         public string Apply(string prefix, string suffix, CssPatchFile file)

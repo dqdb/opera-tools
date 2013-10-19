@@ -5,30 +5,23 @@ using System.Windows.Forms;
 using System.IO;
 using System.Reflection;
 using System.Drawing;
+using System.Xml;
 
 namespace SpeedDialPatch
 {
     public class Settings
     {
-        public int SpeedDialColumns;
-        public int SpeedDialThumbnailWidth;
-        public int SpeedDialThumbnailHeight;
-        public bool DisableBuiltInThumbnails;
-        public bool AddCustomThumbnails;
         public string OperaFolder;
+        public SpeedDialSettings SpeedDial;
         public CssPatches CssPatches;
-        public Dictionary<string, string> CustomThumbnails;
+        public SearchSettings Search;
 
         public Settings()
         {
-            SpeedDialColumns = 5;
-            SpeedDialThumbnailWidth = 230;
-            SpeedDialThumbnailHeight = 170;
-            DisableBuiltInThumbnails = false;
+            SpeedDial = new SpeedDialSettings();
             OperaFolder = Directory.GetCurrentDirectory();
             CssPatches = new CssPatches();
-            AddCustomThumbnails = true;
-            CustomThumbnails = new Dictionary<string, string>();
+            Search = new SearchSettings();
         }
 
         public void LoadFromConfigFile()
@@ -37,39 +30,34 @@ namespace SpeedDialPatch
             if (!File.Exists(fileName))
                 return;
 
-            string[] config = File.ReadAllText(fileName).Split('|');
-            if (config.Length < 5 || config.Length > 7)
-                return;
-
-            SpeedDialColumns = Convert.ToInt32(config[0]);
-            SpeedDialThumbnailWidth = Convert.ToInt32(config[1]);
-            SpeedDialThumbnailHeight = Convert.ToInt32(config[2]);
-            DisableBuiltInThumbnails = Convert.ToBoolean(config[3]);
-            OperaFolder = config[4];
-
-            if (config.Length >= 6)
-                CssPatches.LoadFromConfigFile(config[5]);
-
-            if (config.Length >= 7)
-                AddCustomThumbnails = Convert.ToBoolean(config[6]);
-        }
-
-        public void LoadFromCommandLine(string[] args)
-        {
-            for (int n = 0; n < args.Length; n++)
+            XmlDocument doc = new XmlDocument();
+            try
             {
-                if (args[n] == "-columns" && n < args.Length - 1)
-                    SpeedDialColumns = Convert.ToInt32(args[++n]);
-                else if (args[n] == "-width" && n < args.Length - 1)
-                    SpeedDialThumbnailWidth = Convert.ToInt32(args[++n]);
-                else if (args[n] == "-height" && n < args.Length - 1)
-                    SpeedDialThumbnailHeight = Convert.ToInt32(args[++n]);
-                else if (args[n] == "-disablebuiltinthumbnails")
-                    DisableBuiltInThumbnails = true;
-                else if (args[n] == "-addcustomthumbnails")
-                    AddCustomThumbnails = true;
-                else if (args[n] == "-folder" && n < args.Length - 1)
-                    OperaFolder = args[++n];
+                doc.Load(fileName);
+                XmlNode node = doc.DocumentElement;
+
+                OperaFolder = ConfigFile.Read(node, "operaFolder", OperaFolder);
+                SpeedDial.LoadFromConfig(node, "speedDial");
+                CssPatches.LoadFromConfig(node, "cssPatches");
+                Search.LoadFromConfig(node, "search");
+            }
+            catch (XmlException)
+            {
+                string[] config = File.ReadAllText(fileName).Split('|');
+                if (config.Length < 5 || config.Length > 7)
+                    return;
+
+                SpeedDial.Columns = Convert.ToInt32(config[0]);
+                SpeedDial.ThumbnailWidth = Convert.ToInt32(config[1]);
+                SpeedDial.ThumbnailHeight = Convert.ToInt32(config[2]);
+                SpeedDial.DisableBuiltInThumbnails = Convert.ToBoolean(config[3]);
+                OperaFolder = config[4];
+
+                if (config.Length >= 6)
+                    CssPatches.LoadFromString(config[5]);
+
+                if (config.Length >= 7)
+                    SpeedDial.AddCustomThumbnails = Convert.ToBoolean(config[6]);
             }
         }
 
@@ -93,19 +81,24 @@ namespace SpeedDialPatch
             OperaFolder = dlg.SelectedPath;
 
             ColoredConsole.WriteLine("Opera folder: ~W{0}~N", OperaFolder);
-            SpeedDialColumns = ColoredConsole.ReadNumber("Number of speed dial columns: ", SpeedDialColumns);
-            SpeedDialThumbnailWidth = ColoredConsole.ReadNumber("Speed dial thumbnail width: ", SpeedDialThumbnailWidth);
-            SpeedDialThumbnailHeight = ColoredConsole.ReadNumber("Speed dial thumbnail height: ", SpeedDialThumbnailHeight);
-            DisableBuiltInThumbnails = ColoredConsole.ReadBoolean("Disable built-in speed dial thumbnails: ", DisableBuiltInThumbnails);
-            AddCustomThumbnails = ColoredConsole.ReadBoolean("Add custom speed dial thumbnails: ", AddCustomThumbnails);
+            SpeedDial.LoadFromConsole();
             CssPatches.LoadFromConsole();
+            Search.LoadFromConsole();
         }
 
         public void SaveToConfigFile()
         {
-            File.WriteAllText(GetFileName(), String.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}",
-                SpeedDialColumns, SpeedDialThumbnailWidth, SpeedDialThumbnailHeight, 
-                DisableBuiltInThumbnails, OperaFolder, CssPatches.SaveToConfigFile(), AddCustomThumbnails));
+            XmlWriterSettings settings = new XmlWriterSettings();
+            settings.Indent = true;
+            using (XmlWriter writer = XmlWriter.Create(GetFileName(), settings))
+            {
+                writer.WriteStartElement("config");
+                
+                ConfigFile.Write(writer, "operaFolder", OperaFolder);
+                SpeedDial.SaveToConfig(writer, "speedDial");
+                CssPatches.SaveToConfig(writer, "cssPatches");
+                Search.SaveToConfig(writer, "search");
+            }
         }
 
         private static string GetFileName()
@@ -113,24 +106,5 @@ namespace SpeedDialPatch
             return Path.ChangeExtension(Assembly.GetExecutingAssembly().Location, ".config");
         }
 
-        public void LoadCustomThumbnails()
-        {
-            if (!AddCustomThumbnails)
-                return;
-
-            string[] fileNames = Directory.GetFiles("sdimages", "*.png");
-            for (int n = 0; n < fileNames.Length; n++)
-            {
-                string fileName = fileNames[n];
-                string name = Path.GetFileNameWithoutExtension(fileName);
-
-                ColoredConsole.WriteLine("Adding thumbnail for ~W{0}~N ...", name);
-                Image image = Image.FromFile(fileName);
-                if (image.Width != SpeedDialThumbnailWidth || image.Height != SpeedDialThumbnailHeight)
-                    ColoredConsole.WriteLine("~y~KWarning:~k~Y thumbnail image resolution is not {0}x{1}.~N", SpeedDialThumbnailWidth, SpeedDialThumbnailHeight);
-
-                CustomThumbnails.Add(name, "data:image/png;base64," + Convert.ToBase64String(File.ReadAllBytes(fileName)));
-            }
-        }
     }
 }
