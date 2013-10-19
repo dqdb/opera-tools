@@ -1,0 +1,1 @@
+Copy custom thumbnail images into this folder. File "something.com.png" will be used for sites www.something.com, something.com, or anything.something.com.

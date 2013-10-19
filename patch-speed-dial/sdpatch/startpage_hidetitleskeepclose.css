@@ -1,0 +1,5 @@
+/* patchtitle:Start Page # Hide titles and keep close button */
+/* patchfile:StartPageHtml */
+.speeddial-title-container .speeddial-title { display: none !important; } 
+.speeddial-title-container { bottom: 0px !important; }
+
