@@ -212,7 +212,8 @@ namespace SpeedDialPatch
             if (settings.Search.DeletePartnerSearchEngines)
                 File.Delete(contentFileName);
 
-            ExePatch.Apply(Path.ChangeExtension(pakFileName, ".exe"), settings);
+            if (ExePatch != null && settings.PatchOperaExe)
+                ExePatch.Apply(Path.ChangeExtension(pakFileName, ".exe"), settings);
         }
 
         private static void ApplyCssPixelRule(string[] lines, int index, string name, int value)

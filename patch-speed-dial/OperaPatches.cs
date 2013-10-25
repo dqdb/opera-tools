@@ -16,8 +16,15 @@ namespace SpeedDialPatch
 			//             |                 |                |      |      |      |      ToolsCss
 			//             |                 |                |      |      |      |      |      FilterCss
 			//             |                 |                |      |      |      |      |      |
-			new OperaPatch("18.0.1284.5",    "18.0.1284.5",   43020, 43515, 43026, 43021, 41010, 41008, new ExePatch(0x00733dec, "0F 85 8A 00 00 00", "E9 8B 00 00 00 90"))						
+			new OperaPatch("19.0.1300.0",    "19.0.1300.0",   43020, 43515, 43026, 43021, 41010, 41008, new ExePatch(0x0073f48e, "0F 85 CA 00 00 00", "E9 CB 00 00 00 90")),
+			new OperaPatch("18.0.1284.5",    "18.0.1284.5",   43020, 43515, 43026, 43021, 41010, 41008, new ExePatch(0x00733dec, "0F 85 8A 00 00 00", "E9 8B 00 00 00 90"))
 		};
+
+        public static HeuristicPatch[] HeuristicPatches = new HeuristicPatch[]
+        {
+            new HeuristicPatch("84 C0 0F 85 CA 00 00 00 8D 8D 3A", "0F 85 CA 00 00 00", "E9 CB 00 00 00 90"), 
+            new HeuristicPatch("84 C0 0F 85 8A 00 00 00 8D 4D 8A", "0F 85 8A 00 00 00", "E9 8B 00 00 00 90") 
+        };
 
         public static OperaPatch Find(OperaVersion version)
         {
@@ -31,7 +38,7 @@ namespace SpeedDialPatch
             return null;
         }
 
-        public static OperaPatch FindWithHeuristics(string pakFileName)
+        public static OperaPatch FindWithHeuristics(Settings settings, string pakFileName)
         {
             PakFile pakFile = new PakFile();
             pakFile.Load(pakFileName);
@@ -39,15 +46,28 @@ namespace SpeedDialPatch
             string originalExeFileName = exeFileName + OperaPatch.BackupExtension;
             byte[] exeFile = File.ReadAllBytes(File.Exists(originalExeFileName) ? originalExeFileName : exeFileName);
 
-            byte[] find = ByteArray.GetBytes("84 C0 0F 85 8A 00 00 00 8D 4D 8A");
-            byte[] original = ByteArray.GetBytes("0F 85 8A 00 00 00");
-            byte[] patched = ByteArray.GetBytes("E9 8B 00 00 00 90");
+            int offset = -1;
+            byte[] original = null;
+            byte[] patched = null;
 
-            int offset = ByteArray.Find(exeFile, find);
-            if (offset < 0)
-                return null;
+            if (settings.PatchOperaExe)
+            {
+                for (int n = 0; n < HeuristicPatches.Length; n++)
+                {
+                    HeuristicPatch patch = HeuristicPatches[n];
+                    offset = ByteArray.Find(exeFile, patch.Find);
+                    if (offset >= 0)
+                    {
+                        original = patch.Original;
+                        patched = patch.Patched;
+                        offset += ByteArray.Find(patch.Find, original);
+                        break;
+                    }
+                }
 
-            offset += ByteArray.Find(find, original);
+                if (offset < 0)
+                    return null;
+            }
 
             int speeddialLayoutJs = FindInPakFile(pakFile, "var SpeeddialObject = function(");
             int startPageHtml = FindInPakFile(pakFile, "<div class=\"view\" data-view-id=\"speeddial\"></div>");
@@ -63,7 +83,7 @@ namespace SpeedDialPatch
             return new OperaPatch(
                 "0.0.0.0", "0.0.0.0",
                 speeddialLayoutJs, startPageHtml, preinstalledSpeeddialsJs, speeddialSuggestionsJs, toolsCss, filterCss, 
-                new ExePatch(offset, original, patched));
+                offset >= 0 ? new ExePatch(offset, original, patched) : null);
         }
 
         private static int FindInPakFile(PakFile pakFile, string text)

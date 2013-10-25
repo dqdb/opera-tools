@@ -12,14 +12,16 @@ namespace SpeedDialPatch
     public class Settings
     {
         public string OperaFolder;
+        public bool PatchOperaExe;
         public SpeedDialSettings SpeedDial;
         public CssPatches CssPatches;
         public SearchSettings Search;
 
         public Settings()
         {
-            SpeedDial = new SpeedDialSettings();
             OperaFolder = Directory.GetCurrentDirectory();
+            PatchOperaExe = true;
+            SpeedDial = new SpeedDialSettings();
             CssPatches = new CssPatches();
             Search = new SearchSettings();
         }
@@ -37,6 +39,7 @@ namespace SpeedDialPatch
                 XmlNode node = doc.DocumentElement;
 
                 OperaFolder = ConfigFile.Read(node, "operaFolder", OperaFolder);
+                PatchOperaExe = ConfigFile.Read(node, "patchOperaExe", PatchOperaExe);
                 SpeedDial.LoadFromConfig(node, "speedDial");
                 CssPatches.LoadFromConfig(node, "cssPatches");
                 Search.LoadFromConfig(node, "search");
@@ -95,6 +98,7 @@ namespace SpeedDialPatch
                 writer.WriteStartElement("config");
                 
                 ConfigFile.Write(writer, "operaFolder", OperaFolder);
+                ConfigFile.Write(writer, "patchOperaExe", PatchOperaExe);
                 SpeedDial.SaveToConfig(writer, "speedDial");
                 CssPatches.SaveToConfig(writer, "cssPatches");
                 Search.SaveToConfig(writer, "search");

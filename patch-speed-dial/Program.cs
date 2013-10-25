@@ -49,7 +49,7 @@ namespace SpeedDialPatch
                 OperaPatch operaPatch = OperaPatches.Find(version);
                 if (operaPatch == null)
                 {
-                    operaPatch = OperaPatches.FindWithHeuristics(pakFileName);
+                    operaPatch = OperaPatches.FindWithHeuristics(settings, pakFileName);
                     if (operaPatch == null)
                     {
                         ColoredConsole.WriteLine();

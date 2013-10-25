@@ -48,6 +48,7 @@
     <Compile Include="ByteArray.cs" />
     <Compile Include="ColoredConsole.cs" />
     <Compile Include="ConfigFile.cs" />
+    <Compile Include="HeuristicPatch.cs" />
     <Compile Include="SearchSettings.cs" />
     <Compile Include="CssPatch.cs" />
     <Compile Include="CssPatches.cs" />
