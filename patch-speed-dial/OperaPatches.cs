@@ -2,42 +2,12 @@
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
+using System.Security.Cryptography;
 
 namespace SpeedDialPatch
 {
     public static class OperaPatches
     {
-        public static OperaPatch[] Patches = new OperaPatch[]
-		{
-			//             StartVersion      EndVersion       SpeeddialLayoutJs
-			//             |                 |                |      StartPageHtml
-			//             |                 |                |      |      PreinstalledSpeeddialsJs
-			//             |                 |                |      |      |      SpeeddialSuggestionsJs
-			//             |                 |                |      |      |      |      ToolsCss
-			//             |                 |                |      |      |      |      |      FilterCss
-			//             |                 |                |      |      |      |      |      |
-			new OperaPatch("19.0.1300.0",    "19.0.1300.0",   43020, 43515, 43026, 43021, 41010, 41008, new ExePatch(0x0073f48e, "0F 85 CA 00 00 00", "E9 CB 00 00 00 90")),
-			new OperaPatch("18.0.1284.5",    "18.0.1284.5",   43020, 43515, 43026, 43021, 41010, 41008, new ExePatch(0x00733dec, "0F 85 8A 00 00 00", "E9 8B 00 00 00 90"))
-		};
-
-        public static HeuristicPatch[] HeuristicPatches = new HeuristicPatch[]
-        {
-            new HeuristicPatch("84 C0 0F 85 CA 00 00 00 8D 8D 3A", "0F 85 CA 00 00 00", "E9 CB 00 00 00 90"), 
-            new HeuristicPatch("84 C0 0F 85 8A 00 00 00 8D 4D 8A", "0F 85 8A 00 00 00", "E9 8B 00 00 00 90") 
-        };
-
-        public static OperaPatch Find(OperaVersion version)
-        {
-            for (int n = 0; n < Patches.Length; n++)
-            {
-                OperaPatch patch = Patches[n];
-                if (patch.Match(version))
-                    return patch;
-            }
-
-            return null;
-        }
-
         public static OperaPatch FindWithHeuristics(Settings settings, string pakFileName)
         {
             PakFile pakFile = new PakFile();
@@ -46,26 +16,13 @@ namespace SpeedDialPatch
             string originalExeFileName = exeFileName + OperaPatch.BackupExtension;
             byte[] exeFile = File.ReadAllBytes(File.Exists(originalExeFileName) ? originalExeFileName : exeFileName);
 
-            int offset = -1;
-            byte[] original = null;
-            byte[] patched = null;
+            int operaPakHashOffset = -1;
 
             if (settings.PatchOperaExe)
             {
-                for (int n = 0; n < HeuristicPatches.Length; n++)
-                {
-                    HeuristicPatch patch = HeuristicPatches[n];
-                    offset = ByteArray.Find(exeFile, patch.Find);
-                    if (offset >= 0)
-                    {
-                        original = patch.Original;
-                        patched = patch.Patched;
-                        offset += ByteArray.Find(patch.Find, original);
-                        break;
-                    }
-                }
-
-                if (offset < 0)
+                string originalPakFileName = pakFileName + OperaPatch.BackupExtension;
+                operaPakHashOffset = ByteArray.Find(exeFile, GetPakFileHash(File.Exists(originalPakFileName) ? originalPakFileName : pakFileName));
+                if (operaPakHashOffset < 0)
                     return null;
             }
 
@@ -81,9 +38,14 @@ namespace SpeedDialPatch
                 return null;
 
             return new OperaPatch(
-                "0.0.0.0", "0.0.0.0",
                 speeddialLayoutJs, startPageHtml, preinstalledSpeeddialsJs, speeddialSuggestionsJs, toolsCss, filterCss, 
-                offset >= 0 ? new ExePatch(offset, original, patched) : null);
+                operaPakHashOffset);
+        }
+
+        public static byte[] GetPakFileHash(string fileName)
+        {
+            // base64(sha1(file))
+            return Encoding.ASCII.GetBytes(Convert.ToBase64String(SHA1.Create().ComputeHash(File.ReadAllBytes(fileName))));
         }
 
         private static int FindInPakFile(PakFile pakFile, string text)

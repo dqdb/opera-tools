@@ -10,57 +10,37 @@ namespace SpeedDialPatch
     {
         public const string BackupExtension = ".sdpatch-original";
 
-        public OperaVersion StartVersion;
-        public OperaVersion EndVersion;
-
         public int SpeeddialLayoutJs;
         public int StartPageHtml;
         public int PreinstalledSpeeddialsJs;
         public int SpeeddialSuggestionsJs;
         public int ToolsCss;
         public int FilterCss;
-        public ExePatch ExePatch;
+        public int OperaPakHashOffset;
 
-        public OperaPatch(string startVersion, string endVersion, int speeddialLayoutJs, int speeddialSuggestionsJs, int startPageHtml, int preinstalledSpeeddialsJs, int toolsCss, int filterCss) :
-            this(OperaVersion.Parse(startVersion), OperaVersion.Parse(endVersion), speeddialLayoutJs, speeddialSuggestionsJs, startPageHtml, preinstalledSpeeddialsJs, toolsCss, filterCss, null)
+        public OperaPatch(int speeddialLayoutJs, int startPageHtml, int preinstalledSpeeddialsJs, int speeddialSuggestionsJs, int toolsCss, int filterCss, int operaPakHashOffset)
         {
-        }
-
-        public OperaPatch(string startVersion, string endVersion, int speeddialLayoutJs, int startPageHtml, int preinstalledSpeeddialsJs, int speeddialSuggestionsJs, int toolsCss, int filterCss, ExePatch exePatch) :
-            this(OperaVersion.Parse(startVersion), OperaVersion.Parse(endVersion), speeddialLayoutJs, startPageHtml, preinstalledSpeeddialsJs, speeddialSuggestionsJs, toolsCss, filterCss, exePatch)
-        {
-        }
-
-        public OperaPatch(OperaVersion startVersion, OperaVersion endVersion, int speeddialLayoutJs, int startPageHtml, int preinstalledSpeeddialsJs, int speeddialSuggestionsJs, int toolsCss, int filterCss, ExePatch exePatch)
-        {
-            StartVersion = startVersion;
-            EndVersion = endVersion;
             SpeeddialLayoutJs = speeddialLayoutJs;
             StartPageHtml = startPageHtml;
             PreinstalledSpeeddialsJs = preinstalledSpeeddialsJs;
             SpeeddialSuggestionsJs = speeddialSuggestionsJs;
             ToolsCss = toolsCss;
             FilterCss = filterCss;
-            ExePatch = exePatch;
-        }
-
-        public bool Match(OperaVersion version)
-        {
-            return version >= StartVersion && version <= EndVersion;
+            OperaPakHashOffset = operaPakHashOffset;
         }
 
         public void Apply(Settings settings, string pakFileName)
         {
-            string originalFileName = pakFileName + BackupExtension;
+            string originalPakFileName = pakFileName + BackupExtension;
             CssPatches cssPatches = settings.CssPatches;
 
             PakFile pakFile = new PakFile();
             ColoredConsole.WriteLine("Reading ~W{0}~N ...", pakFileName);
 
-            if (!File.Exists(originalFileName))
-                File.Copy(pakFileName, originalFileName);
+            if (!File.Exists(originalPakFileName))
+                File.Copy(pakFileName, originalPakFileName);
             else
-                File.Copy(originalFileName, pakFileName, true);
+                File.Copy(originalPakFileName, pakFileName, true);
 
             pakFile.Load(pakFileName);
 
@@ -212,8 +192,90 @@ namespace SpeedDialPatch
             if (settings.Search.DeletePartnerSearchEngines)
                 File.Delete(contentFileName);
 
-            if (ExePatch != null && settings.PatchOperaExe)
-                ExePatch.Apply(Path.ChangeExtension(pakFileName, ".exe"), settings);
+            if (settings.PatchOperaExe)
+            {
+                string exeFileName = Path.ChangeExtension(pakFileName, ".exe");
+                string originalExeFileName = exeFileName + OperaPatch.BackupExtension;
+
+                ColoredConsole.WriteLine("Reading ~W{0}~N ...", exeFileName);
+                if (!File.Exists(originalExeFileName))
+                    File.Copy(exeFileName, originalExeFileName);
+                else
+                    File.Copy(originalExeFileName, exeFileName, true);
+
+                byte[] exeFile = File.ReadAllBytes(exeFileName);
+                byte[] patched = OperaPatches.GetPakFileHash(pakFileName);
+                byte[] original = OperaPatches.GetPakFileHash(originalPakFileName);
+                if (exeFile.Length < OperaPakHashOffset + patched.Length)
+                    throw new InvalidOperationException("Invalid executable patch: offset error.");
+
+                for (int n = 0; n < original.Length; n++)
+                {
+                    if (exeFile[OperaPakHashOffset + n] != original[n])
+                        throw new InvalidOperationException("Invalid executable patch: original data do not match.");
+
+                    exeFile[OperaPakHashOffset + n] = patched[n];
+                }
+
+                if (settings.Search.DeletePartnerSearchEngines)
+                {
+                    byte[] search = Encoding.ASCII.GetBytes(SearchSettings.BuiltinUrl);
+                    for (int offset = 0; offset < exeFile.Length - search.Length - 1; offset++)
+                    {
+                        bool found = true;
+                        for (int n = 0; found && n < search.Length; n++)
+                            found = exeFile[offset + n] == search[n];
+
+                        if (found && exeFile[offset + search.Length] == 0)
+                        {
+                            byte[] builtin = BuildSearchSettings(SearchSettings.BuiltinUrl, SearchSettings.BuiltinName, SearchSettings.BuiltinKeyword, SearchSettings.BuiltinFavicon, SearchSettings.BuiltinSuggestionUrl);
+                            byte[] default1 = BuildSearchSettings(settings.Search.DefaultUrl, settings.Search.DefaultName, settings.Search.DefaultKeyword, settings.Search.DefaultFavicon, settings.Search.DefaultSuggestionUrl);
+                            for (int n = 0; found && n < builtin.Length; n++)
+                                found = exeFile[offset + n] == builtin[n];
+
+                            if (found)
+                                Array.Copy(default1, 0, exeFile, offset, default1.Length);
+                            else
+                                ColoredConsole.WriteLine("~y~KWarning:~k~Y built-in search engine structure has been changed. You must update SpeedDialPatch.~N");
+                        }
+                    }
+                }
+
+                ColoredConsole.WriteLine("Writing ~W{0}~N ...", exeFileName);
+                File.WriteAllBytes(exeFileName + ".temp", exeFile);
+                File.Delete(exeFileName);
+                File.Move(exeFileName + ".temp", exeFileName);
+            }
+        }
+
+        private static byte[] BuildSearchSettings(string searchUrl, string searchName, string searchKeyword, string searchFavicon, string searchSuggestionUrl)
+        {
+            int searchUrlSize = SearchSettings.CalculateMaxLength(SearchSettings.BuiltinUrl) + 1;
+            int searchNameSize = SearchSettings.CalculateMaxLength(SearchSettings.BuiltinName) + 1;
+            int searchKeywordSize = SearchSettings.CalculateMaxLength(SearchSettings.BuiltinKeyword) + 1;
+            int searchFaviconSize = SearchSettings.CalculateMaxLength(SearchSettings.BuiltinFavicon) + 1;
+            int searchDummySize = SearchSettings.CalculateMaxLength("") + 1;
+            int searchSuggestionUrlSize = SearchSettings.CalculateMaxLength(SearchSettings.BuiltinSuggestionUrl) + 1;
+            int size = searchUrlSize + searchNameSize + searchKeywordSize + searchFaviconSize + searchDummySize + searchSuggestionUrlSize;
+            byte[] result = new byte[size];
+            byte[] searchUrl1 = Encoding.ASCII.GetBytes(searchUrl);
+            byte[] searchName1 = Encoding.ASCII.GetBytes(searchName);
+            byte[] searchKeyword1 = Encoding.ASCII.GetBytes(searchKeyword);
+            byte[] searchFavicon1 = Encoding.ASCII.GetBytes(searchFavicon);
+            byte[] searchSuggestionUrl1 = Encoding.ASCII.GetBytes(searchSuggestionUrl);
+            int offset = 0;
+
+            Array.Copy(searchUrl1, 0, result, offset, searchUrl1.Length);
+            offset += searchUrlSize;
+            Array.Copy(searchName1, 0, result, offset, searchName1.Length);
+            offset += searchNameSize;
+            Array.Copy(searchKeyword1, 0, result, offset, searchKeyword1.Length);
+            offset += searchKeywordSize;
+            Array.Copy(searchFavicon1, 0, result, offset, searchFavicon1.Length);
+            offset += searchFaviconSize;
+            offset += searchDummySize;
+            Array.Copy(searchSuggestionUrl1, 0, result, offset, searchSuggestionUrl1.Length);
+            return result;
         }
 
         private static void ApplyCssPixelRule(string[] lines, int index, string name, int value)

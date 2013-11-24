@@ -21,10 +21,16 @@ Because this tool modifies the **opera.pak** file (and in newer builds **opera.e
 Not supported.
 
 ###Opera 18
-*Opera 18.0.1284.5* is supported. I will try to support all future *Opera Developer* builds until built-in Speed Dial customization will be supported. *Opera Next* and *Opera Stable* builds will **not** be supported (I am using developer stream builds only and binary patching takes a lot of time). Because this tool has to patch *opera.exe* also, you have to wait for me to update the tool after each Opera Developer update if heuristics fails.
+All developer builds are supported.
+
+###Opera 19
+Up to *Opera 19.0.1326.0* is supported. I will try to support all future *Opera Developer* builds until built-in Speed Dial customization will be supported. *Opera Next* and *Opera Stable* builds will **not** be supported (I am using developer stream builds only and binary patching takes a lot of time). Because this tool has to patch *opera.exe* also, you have to wait for me to update the tool after each Opera Developer update if heuristics fails.
 
 #Requirements
 1. *XP only:* install Microsoft .NET Framework 2.0 if it is not installed already 
+
+###Changes on 2013-11-24
+* Updated patching mechanism (calculating modified *opera.pak* hash and patching data instead of patching x86 code)
 
 ###Changes on 2013-10-19
 * Added new CSS files to hide speed dial labels

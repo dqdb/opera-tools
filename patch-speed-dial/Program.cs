@@ -14,7 +14,7 @@ namespace SpeedDialPatch
 
             try
             {
-                ColoredConsole.WriteLine("~WOpera Speed Dial Patch for {0}~N", OperaPatches.Patches[0].StartVersion);
+                ColoredConsole.WriteLine("~WOpera Speed Dial Patch (build 20131124)~N");
                 ColoredConsole.WriteLine("~WCopyright (c) 2013 dqdb~N");
                 ColoredConsole.WriteLine();
                 ColoredConsole.WriteLine("Thanks to ~WIzer0~N for all patches.");
@@ -46,40 +46,25 @@ namespace SpeedDialPatch
 
                 ColoredConsole.WriteLine("Opera version: ~W{0}~N", version);
 
-                OperaPatch operaPatch = OperaPatches.Find(version);
+                OperaPatch operaPatch = OperaPatches.FindWithHeuristics(settings, pakFileName);
                 if (operaPatch == null)
                 {
-                    operaPatch = OperaPatches.FindWithHeuristics(settings, pakFileName);
-                    if (operaPatch == null)
-                    {
-                        ColoredConsole.WriteLine();
-                        ColoredConsole.WriteLine("~r~WError:~k~R this Opera version is not supported yet.~N");
-                        return 1;
-                    }
-
                     ColoredConsole.WriteLine();
-                    ColoredConsole.WriteLine("Processing ...");
-                    ColoredConsole.WriteLine();
-                    ColoredConsole.WriteLine("OperaExeOffset: ~W0x{0:x8}~N", operaPatch.ExePatch.Offset);
-                    ColoredConsole.WriteLine("SpeeddialLayoutJs: ~W{0}~N", operaPatch.SpeeddialLayoutJs);
-                    ColoredConsole.WriteLine("StartPageHtml: ~W{0}~N", operaPatch.StartPageHtml);
-                    ColoredConsole.WriteLine("PreinstalledSpeeddialsJs: ~W{0}~N", operaPatch.PreinstalledSpeeddialsJs);
-                    ColoredConsole.WriteLine("SpeeddialSuggestionsJs: ~W{0}~N", operaPatch.SpeeddialSuggestionsJs);
-                    ColoredConsole.WriteLine("ToolsCss: ~W{0}~N", operaPatch.ToolsCss);
-                    ColoredConsole.WriteLine("FilterCss: ~W{0}~N", operaPatch.FilterCss);
-                    ColoredConsole.WriteLine();
-
-                    ColoredConsole.WriteLine("~y~KWarning:~k~Y this Opera version is probably supported, but it is ~y~KNOT~k~Y tested yet. Improper patching may have side effects.~N");
-                    ColoredConsole.WriteLine();
-                    if (!ColoredConsole.Read("I understand the risks: ", false))
-                        return 1;
-                    ColoredConsole.WriteLine();
+                    ColoredConsole.WriteLine("~r~WError:~k~R this Opera version is not supported yet.~N");
+                    return 1;
                 }
-                else
-                {
-                    ColoredConsole.WriteLine("Using resource layout for Opera ~W{0}~N - ~W{1}~N builds.", operaPatch.StartVersion, operaPatch.EndVersion);
-                    ColoredConsole.WriteLine();
-                }
+
+                ColoredConsole.WriteLine();
+                ColoredConsole.WriteLine("Processing ...");
+                ColoredConsole.WriteLine();
+                ColoredConsole.WriteLine("OperaPackHashOffset: ~W0x{0:x8}~N", operaPatch.OperaPakHashOffset);
+                ColoredConsole.WriteLine("SpeeddialLayoutJs: ~W{0}~N", operaPatch.SpeeddialLayoutJs);
+                ColoredConsole.WriteLine("StartPageHtml: ~W{0}~N", operaPatch.StartPageHtml);
+                ColoredConsole.WriteLine("PreinstalledSpeeddialsJs: ~W{0}~N", operaPatch.PreinstalledSpeeddialsJs);
+                ColoredConsole.WriteLine("SpeeddialSuggestionsJs: ~W{0}~N", operaPatch.SpeeddialSuggestionsJs);
+                ColoredConsole.WriteLine("ToolsCss: ~W{0}~N", operaPatch.ToolsCss);
+                ColoredConsole.WriteLine("FilterCss: ~W{0}~N", operaPatch.FilterCss);
+                ColoredConsole.WriteLine();
 
                 if (!ColoredConsole.Read("I would like to start patching: ", true))
                     return 1;
